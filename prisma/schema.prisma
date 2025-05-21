@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Ampola {
+  Cd_Ampola   Int       @id(map: "Ampola_pk") @default(autoincrement())
+  Cd_Lote     Int
+  Dt_Abertura DateTime? @db.DateTime
+  Lote        Lote      @relation(fields: [Cd_Lote], references: [Cd_Lote], onUpdate: NoAction, map: "Ampola_Lote_Cd_Lote_fk")
+  Dose        Dose[]
+}
+
+model Bairro {
+  Cd_Bairro Int    @id(map: "Bairro_pk") @default(autoincrement())
+  Cd_Cidade Int
+  Nm_Bairro String @db.NVarChar(255)
+  Cidade    Cidade @relation(fields: [Cd_Cidade], references: [Cd_Cidade], onDelete: Cascade, onUpdate: NoAction, map: "Bairro_Cidade_Cd_Cidade_fk")
+  Rua       Rua[]
+}
+
+model CentroVacinacao {
+  Cd_CentroVacinacao     Int       @id(map: "CentroVacinacao_pk") @default(autoincrement())
+  Cd_Endereco            Int
+  Nm_CentroVacinacao     Int
+  Cd_CNPJCentroVacinacao String    @db.NVarChar(255)
+  Endereco               Endereco  @relation(fields: [Cd_Endereco], references: [Cd_Endereco], onUpdate: NoAction, map: "CentroVacinacao_Endereco_Cd_Endereco_fk")
+  Lote                   Lote[]
+  Plantao                Plantao[]
+}
+
+model Cidade {
+  Cd_Cidade Int      @id(map: "Cidade_pk") @default(autoincrement())
+  Cd_Estado Int
+  Nm_Cidade String   @db.NVarChar(255)
+  Sg_Cidade String   @db.NVarChar(3)
+  Bairro    Bairro[]
+  Estado    Estado   @relation(fields: [Cd_Estado], references: [Cd_Estado], onDelete: Cascade, map: "Cidade_Estado_Cd_Estado_fk")
+
+  @@unique([Nm_Cidade, Sg_Cidade], map: "Cidade_Nm_Cidade_Sg_Cidade_uindex")
+}
+
+model Dose {
+  Cd_Dose   Int         @id(map: "Dose_pk") @default(autoincrement())
+  Cd_Ampola Int
+  Ampola    Ampola      @relation(fields: [Cd_Ampola], references: [Cd_Ampola], onUpdate: NoAction, map: "Dose___fk")
+  Vacinacao Vacinacao[]
+}
+
+model Endereco {
+  Cd_Endereco     Int               @id(map: "Endereco_pk") @default(autoincrement())
+  Cd_Rua          Int
+  Nu_Local        String            @db.NVarChar(10)
+  Ds_Complemento  String?           @db.NVarChar(255)
+  CentroVacinacao CentroVacinacao[]
+  Rua             Rua               @relation(fields: [Cd_Rua], references: [Cd_Rua], onDelete: Cascade, map: "Endereco_Rua_Cd_Rua_fk")
+  Fabrica         Fabrica[]
+  Pessoa          Pessoa[]
+}
+
+model Estado {
+  Cd_Estado Int      @id(map: "Estado_pk") @default(autoincrement())
+  Cd_Pais   Int
+  Nm_Estado String   @db.NVarChar(255)
+  Sg_Estado String   @db.NVarChar(3)
+  Cd_Area   String   @db.NVarChar(3)
+  Cidade    Cidade[]
+  Pais      Pais     @relation(fields: [Cd_Pais], references: [Cd_Pais], onDelete: Cascade, map: "Estado_Pais_Cd_Pais_fk")
+
+  @@unique([Nm_Estado, Sg_Estado], map: "In_Nome_Estado_Sg_Estado")
+}
+
+model Fabrica {
+  Cd_Fabrica     Int      @id(map: "Fabrica_pk") @default(autoincrement())
+  Nm_Fabrica     String   @db.NVarChar(255)
+  Cd_CNPJFabrica String   @db.VarChar(255)
+  Cd_Endereco    Int
+  Endereco       Endereco @relation(fields: [Cd_Endereco], references: [Cd_Endereco], onUpdate: NoAction, map: "Fabrica_Endereco_Cd_Endereco_fk")
+  Lote           Lote[]
+
+  @@unique([Nm_Fabrica, Cd_CNPJFabrica], map: "Fabrica_Nm_Fabrica_Cd_CNPJFabrica_uindex")
+}
+
+model Funcionario {
+  Cd_Funcionario Int         @id(map: "Funcionario_pk") @default(autoincrement())
+  Cd_Pessoa      Int
+  Pessoa         Pessoa      @relation(fields: [Cd_Pessoa], references: [Cd_Pessoa], onDelete: Cascade, map: "Funcionario_Pessoa_Cd_Pessoa_fk")
+  Plantao        Plantao[]
+  Vacinacao      Vacinacao[]
+}
+
+model Lote {
+  Cd_Lote            Int             @id(map: "Lote_pk") @default(autoincrement())
+  Cd_Fabrica         Int
+  Cd_TipoVacina      Int
+  Cd_CentroVacinacao Int
+  Dt_Fabricacao      DateTime        @db.DateTime
+  Ampola             Ampola[]
+  CentroVacinacao    CentroVacinacao @relation(fields: [Cd_CentroVacinacao], references: [Cd_CentroVacinacao], onUpdate: NoAction, map: "Lote_CentroVacinacao_Cd_CentroVacinacao_fk")
+  Fabrica            Fabrica         @relation(fields: [Cd_Fabrica], references: [Cd_Fabrica], onUpdate: NoAction, map: "Lote_Fabrica_Cd_Fabrica_fk")
+  TipoVacina         TipoVacina      @relation(fields: [Cd_TipoVacina], references: [Cd_TipoVacina], onUpdate: NoAction, map: "Lote_TipoVacina_Cd_TipoVacina_fk")
+}
+
+model Paciente {
+  Cd_Paciente Int         @id(map: "Paciente_pk") @default(autoincrement())
+  Cd_Pessoa   Int
+  Pessoa      Pessoa      @relation(fields: [Cd_Pessoa], references: [Cd_Pessoa], onDelete: Cascade, map: "Paciente_Pessoa_Cd_Pessoa_fk")
+  Vacinacao   Vacinacao[]
+}
+
+model Pais {
+  Cd_Pais Int      @id(map: "Pais_pk") @default(autoincrement())
+  Nm_Pais String   @db.NVarChar(255)
+  Sg_Pais String   @db.NVarChar(3)
+  Estado  Estado[]
+
+  @@unique([Nm_Pais, Sg_Pais], map: "In_NomeSiglaPais")
+}
+
+model Pessoa {
+  Cd_Pessoa       Int           @id(map: "Pessoa_pk") @default(autoincrement())
+  Nm_PrimeiroNome String        @db.NVarChar(255)
+  Nm_Sobrenome    String        @db.NVarChar(255)
+  Cd_CPF          String        @db.NVarChar(11)
+  Ds_Email        String        @unique(map: "In_Pessoa_Email") @db.NVarChar(255)
+  Cd_Endereco     Int
+  Funcionario     Funcionario[]
+  Paciente        Paciente[]
+  Endereco        Endereco      @relation(fields: [Cd_Endereco], references: [Cd_Endereco], onUpdate: NoAction, map: "Pessoa_Endereco_Cd_Endereco_fk")
+}
+
+model Plantao {
+  Cd_Plantao         Int             @id(map: "Plantao_pk") @default(autoincrement())
+  Cd_CentroVacinacao Int
+  Cd_Funcionario     Int
+  Dt_Inicio          DateTime        @db.DateTime
+  Dt_Termino         DateTime?       @db.DateTime
+  CentroVacinacao    CentroVacinacao @relation(fields: [Cd_CentroVacinacao], references: [Cd_CentroVacinacao], onDelete: Cascade, map: "Plantao_CentroVacinacao_Cd_CentroVacinacao_fk")
+  Funcionario        Funcionario     @relation(fields: [Cd_Funcionario], references: [Cd_Funcionario], onUpdate: NoAction, map: "Plantao_Funcionario_Cd_Funcionario_fk")
+}
+
+model Rua {
+  Cd_Rua            Int            @id(map: "Rua_pk") @default(autoincrement())
+  Cd_Bairro         Int
+  Nm_Rua            String         @db.NVarChar(255)
+  Cd_Zip            String         @db.NVarChar(8)
+  Cd_TipoLogradouro Int
+  Endereco          Endereco[]
+  Bairro            Bairro         @relation(fields: [Cd_Bairro], references: [Cd_Bairro], onDelete: Cascade, map: "Rua_Bairro_Cd_Bairro_fk")
+  TipoLogradouro    TipoLogradouro @relation(fields: [Cd_TipoLogradouro], references: [Cd_TipoLogradouro], onUpdate: NoAction, map: "Rua_TipoLogradouro_Cd_TipoLogradouro_fk")
+
+  @@unique([Nm_Rua, Cd_Zip], map: "In_Nome_Rua_Cd_Zip")
+}
+
+model TipoLogradouro {
+  Cd_TipoLogradouro Int    @id(map: "TipoLogradouro_pk") @default(autoincrement())
+  Ds_TipoLogradouro String @db.NVarChar(255)
+  Rua               Rua[]
+}
+
+model TipoVacina {
+  Cd_TipoVacina        Int    @id(map: "TipoVacina_pk") @default(autoincrement())
+  Nm_TipoVacina        String @db.NVarChar(255)
+  Pz_Validade          Int
+  Pz_ValidadeAposAbrir Int
+  Lote                 Lote[]
+}
+
+model Vacinacao {
+  Cd_Vacinacao   Int          @id(map: "Vacinacao_pk") @default(autoincrement())
+  Cd_Paciente    Int
+  Cd_Funcionario Int?
+  Cd_Dose        Int
+  Dt_Vacinacao   DateTime     @db.DateTime
+  Dose           Dose         @relation(fields: [Cd_Dose], references: [Cd_Dose], onUpdate: NoAction, map: "Vacinacao_Dose_Cd_Dose_fk")
+  Funcionario    Funcionario? @relation(fields: [Cd_Funcionario], references: [Cd_Funcionario], onDelete: NoAction, onUpdate: NoAction, map: "Vacinacao_Funcionario_Cd_Funcionario_fk")
+  Paciente       Paciente     @relation(fields: [Cd_Paciente], references: [Cd_Paciente], onUpdate: NoAction, map: "Vacinacao_Paciente_Cd_Paciente_fk")
+}
