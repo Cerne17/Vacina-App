@@ -27,7 +27,7 @@ model Bairro {
 model CentroVacinacao {
   Cd_CentroVacinacao     Int       @id(map: "CentroVacinacao_pk") @default(autoincrement())
   Cd_Endereco            Int
-  Nm_CentroVacinacao     Int
+  Nm_CentroVacinacao     String    @db.NVarChar(255)
   Cd_CNPJCentroVacinacao String    @db.NVarChar(255)
   Endereco               Endereco  @relation(fields: [Cd_Endereco], references: [Cd_Endereco], onUpdate: NoAction, map: "CentroVacinacao_Endereco_Cd_Endereco_fk")
   Lote                   Lote[]
@@ -95,15 +95,16 @@ model Funcionario {
 }
 
 model Lote {
-  Cd_Lote            Int             @id(map: "Lote_pk") @default(autoincrement())
-  Cd_Fabrica         Int
-  Cd_TipoVacina      Int
-  Cd_CentroVacinacao Int
-  Dt_Fabricacao      DateTime        @db.DateTime
-  Ampola             Ampola[]
-  CentroVacinacao    CentroVacinacao @relation(fields: [Cd_CentroVacinacao], references: [Cd_CentroVacinacao], onUpdate: NoAction, map: "Lote_CentroVacinacao_Cd_CentroVacinacao_fk")
-  Fabrica            Fabrica         @relation(fields: [Cd_Fabrica], references: [Cd_Fabrica], onUpdate: NoAction, map: "Lote_Fabrica_Cd_Fabrica_fk")
-  TipoVacina         TipoVacina      @relation(fields: [Cd_TipoVacina], references: [Cd_TipoVacina], onUpdate: NoAction, map: "Lote_TipoVacina_Cd_TipoVacina_fk")
+  Cd_Lote              Int             @id(map: "Lote_pk") @default(autoincrement())
+  Cd_Fabrica           Int
+  Cd_TipoVacina        Int
+  Cd_CentroVacinacao   Int
+  Dt_Fabricacao        DateTime        @db.DateTime
+  Nu_QuantidadeAmpolas Int
+  Ampola               Ampola[]
+  CentroVacinacao      CentroVacinacao @relation(fields: [Cd_CentroVacinacao], references: [Cd_CentroVacinacao], onUpdate: NoAction, map: "Lote_CentroVacinacao_Cd_CentroVacinacao_fk")
+  Fabrica              Fabrica         @relation(fields: [Cd_Fabrica], references: [Cd_Fabrica], onUpdate: NoAction, map: "Lote_Fabrica_Cd_Fabrica_fk")
+  TipoVacina           TipoVacina      @relation(fields: [Cd_TipoVacina], references: [Cd_TipoVacina], onUpdate: NoAction, map: "Lote_TipoVacina_Cd_TipoVacina_fk")
 }
 
 model Paciente {
