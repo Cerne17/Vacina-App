@@ -63,10 +63,9 @@ export default function VaccineTypesPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Vaccine Types</h1>
-        {/* We'll add a link/button to create new vaccine types later */}
-        {/* <Link href="/vaccine-types/new">
+        <Link href="/vaccine-types/new">
           <Button>Add New Vaccine Type</Button>
-        </Link> */}
+        </Link>
       </div>
 
       {vaccineTypes.length === 0 ? (
